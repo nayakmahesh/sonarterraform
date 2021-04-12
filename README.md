@@ -1,2 +1,0 @@
-# sonarterraform
-testting github terraform

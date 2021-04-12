@@ -1,0 +1,33 @@
+kind: pipeline
+name: pr-sonarcloud
+
+clone:
+  disable: true
+
+steps:
+- name: clone
+  image: maven:3.6.2-jdk-11
+  commands: 
+  - git clone https://github.com/nayakmahesh/sonarterraform.git .
+  - git checkout $DRONE_COMMIT
+  - git merge master
+
+- name: build-maven
+  image: maven:3.6.2-jdk-11
+  commands:
+#  - mvn install --batch-mode
+  - ls -ltra 
+  depends_on:
+  - clone
+
+- name: sonar
+  image: maven:3.6.2-jdk-11
+  commands:
+  - ls -ltra
+  - mvn clean verify sonar:sonar -Dsonar.login=371a5188195e16a5b9838856c9090718f6ce0089 -Dsonar.pullrequest.provider=GitHub -Dsonar.pullrequest.key=${DRONE_PULL_REQUEST} -Dsonar.pullrequest.branch=comment -Dsonar.pullrequest.github.repository=${DRONE_REPO}
+  depends_on:
+  - build-maven
+  
+trigger:
+  event:
+  - pull_request
